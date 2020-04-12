@@ -1,0 +1,5 @@
+flask_apps/Yolo_v3/*
+flask_apps/VGG16/*
+flask_apps/static/images_temp/*
+flask_apps/static/videos_temp/*
+flask_apps/__pycache__/*
