@@ -2,13 +2,10 @@ import base64
 import io
 import os
 from PIL import Image
-from flask import request, send_file, jsonify, Flask, render_template, send_from_directory
-#from flask import Response, make_response
+from flask import request, send_file, jsonify, Flask, render_template, send_from_directory, Response, stream_with_context
 from tensorflow.python.keras.backend import set_session
 from gevent.pywsgi import WSGIServer
 import cv2
-#import random
-#import string
 
 import VGG16c_d as vg # methods for dog and cat classification
 import yolo as yl3    # methods for yolov3 object detection
@@ -68,9 +65,9 @@ wpath="Yolo_v3/yolov3.weights"
 #=========================================
 # Yolov3 - Images
 
-test_img_path = r'.\static\images_temp'
+img_dir = r'.\static\images_temp'
 test_img_name = 'test.jpg'
-test_img_dir = os.path.join(test_img_path, test_img_name)
+test_img_path = os.path.join(img_dir, test_img_name)
 model, classes, colors, output_layers=yl3.get_model(cfgpath,wpath,labelspath)
 print(" * Yolo_v3 Object Detector model loaded!")
 # =============================================================================
@@ -89,30 +86,19 @@ def predictYoloI():
     decoded = base64.b64decode(encoded + '===')
     image = Image.open(io.BytesIO(decoded))
     res = yl3.image_detect(model, classes, colors, output_layers, image)
-    cv2.imwrite(test_img_dir, res)
-    #img = cv2.imread(os.path.join(test_image_path, tmp_img))
-    #_, im_arr = cv2.imencode('.jpg', img)  # im_arr: image in Numpy one-dim array format.
-    #response = make_response(im_arr.tobytes())
-    #response.headers['Content-Type'] = 'image/png'
-    #im_b64 = base64.b64encode(im_bytes)
-    #encoded_img = "data:image/jpeg;base64," + (im_b64).decode("utf-8")
-# =============================================================================
-#     response = {
-#         'prediction': {
-#             'image': im_b64
-#         }
-#     }
-# =============================================================================
-    # for use with curl in cmd: curl.exe -X POST -F image=@test.jpg 'http://localhost:5000/Yolov3Detect' --output test.png
-    #return Response(response=res, status=200, mimetype="image/jpeg")
-
-    #return send_file(imgByteArr, mimetype='image/png', as_attachment=False)
-    return render_template('predict.html')
+    _,encoded_rendered_image = cv2.imencode('.png', res)
+    ENCODING = 'utf-8'
+    encoded_rendered_image_text = base64.b64encode(encoded_rendered_image)
+    encoded_rendered_base64_string = encoded_rendered_image_text.decode(ENCODING)
+    response = {"prediction": {"rendered_image":encoded_rendered_base64_string}}
+    cv2.imwrite(test_img_path, res)
+    return jsonify(response)
 
 
 @app.route("/Yolov3DI", methods=["POST","GET"])
 def imgDL():
-    return send_from_directory(test_img_path, test_img_name, as_attachment=True)
+    return send_from_directory(img_dir, test_img_name, as_attachment=True)
+
 
 
  
@@ -120,47 +106,73 @@ def imgDL():
 # Yolov3 - Videos
 
 
-test_vid_path = r'.\static\videos_temp'
+vid_dir = r'.\static\videos_temp'
 test_vid_name = 'test.mp4'
-test_frame_path = r'.\static\images_temp'
-test_vid_dir = os.path.join(test_vid_path, test_vid_name)
-test_frame_name = 'test.jpg'
-test_frame_dir = os.path.join(test_vid_path, test_frame_name)
+processed_vid_name = 'processed.mp4'
+test_vid_path = os.path.join(vid_dir, test_vid_name)
+processed_vid_path = os.path.join(vid_dir, processed_vid_name)
+
+test_frame_name = 'frame.jpg'
+test_frame_path = os.path.join(img_dir, test_frame_name)
+
 model, classes, colors, output_layers=yl3.get_model(cfgpath,wpath,labelspath)
 print(" * Yolo_v3 Object Detector model loaded!")
 
-def vidFeed():
-    return render_template('predict.html')
+
+def stream_template(template_name, **context):
+    app.update_template_context(context)
+    t = app.jinja_env.get_template(template_name)
+    rv = t.stream(context)
+    rv.enable_buffering(5)
+    return rv
+
 
 @app.route("/Yolov3DetectV", methods=["POST","GET"])
 def predictYoloV():
     message = request.get_json(force=True)
     encoded = message['video']
     decoded = base64.b64decode(encoded + '===')
-    with open(test_vid_dir, 'wb') as wfile:
+    with open(test_vid_path, 'wb') as wfile:
         wfile.write(decoded)
-    cap = cv2.VideoCapture(test_vid_dir)
-    _, frame = cap.read()
+    cap = cv2.VideoCapture(test_vid_path)
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
-    out = cv2.VideoWriter(test_vid_dir, cv2.VideoWriter_fourcc(*'MP4V'), 10, (frame_width,frame_height))
+    out = cv2.VideoWriter(processed_vid_path, cv2.VideoWriter_fourcc(*'MP4V'), 10, (frame_width,frame_height))
+    _, frame = cap.read()
     while _:
         height, width, channels = frame.shape
         blob, outputs = yl3.detect_objects(frame, model, output_layers)
         boxes, confs, class_ids = yl3.get_box_dimensions(outputs, height, width)
         res = yl3.draw_labels(boxes, confs, colors, class_ids, classes, frame)
         out.write(res)
-        cv2.imwrite(test_frame_dir, res)
-        vidFeed()
         _, frame = cap.read()
-    cap.release()
-    out.release()
-    #image = Image.open(io.BytesIO(decoded))
+
+    #def generateFrames():
+    #    _, frame = cap.read()
+    #    while _:
+    #        height, width, channels = frame.shape
+    #        blob, outputs = yl3.detect_objects(frame, model, output_layers)
+    #        boxes, confs, class_ids = yl3.get_box_dimensions(outputs, height, width)
+    #        res = yl3.draw_labels(boxes, confs, colors, class_ids, classes, frame)
+    #        _,encoded_rendered_image = cv2.imencode('.png', res)
+    #        ENCODING = 'utf-8'
+    #        encoded_rendered_image_text = base64.b64encode(encoded_rendered_image)
+    #        encoded_rendered_base64_string = encoded_rendered_image_text.decode(ENCODING)
+    #        response = {"prediction": {"rendered_image":encoded_rendered_base64_string}}
+    #        out.write(res)
+    #        _, frame = cap.read()
+    #        yield jsonify(response)
+            
+    response = {"status": "ok"}
+    #cap.release()
+    #out.release()
+    #return Response(stream_template('predict.html', frames = stream_with_context(generateFrames)))
+    return jsonify(response)
 
 
 @app.route("/Yolov3DV", methods=["POST","GET"])
 def vidDL():
-    return send_from_directory(test_vid_path, test_vid_name, as_attachment=True)
+    return send_from_directory(vid_dir, processed_vid_name, as_attachment=True)
 
 
 

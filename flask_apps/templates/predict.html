@@ -1,130 +1,177 @@
 <!DOCTYPE html>
 <html>
+    <link rel="stylesheet" media="screen" href="static/style.css" />
 <head>
     <title>Deep Learning Web Services</title>
     <style>
         * {
             font-size:30px;
+            margin: auto;
+            text-align: center;
         }
     </style>
 </head>
-<body>
 
-    <!--Cat/dog classification -->
-    <h1 style="font-size:150%">Cat/Dog Classification</h1>
-    <input id="image-selectorCD" type="file">
-    <button id="predict-buttonCD">Dog/Cat Classifier [VGG16 - Imagenet]</button>
-    <p style="font-weight:bold">Predictions</p>
-    <p>Dog: <span id="dog-prediction"></span></p>
-    <p>Cat: <span id="cat-prediction"></span></p>
-    <img id="selected-imageCD" src=""/>
+<body>
+    <div>
+        <select>
+            <option>Choose Task</option>
+            <option value="cd">Cat/Dog Classification</option>
+            <option value="img">Image Object Detection</option>
+            <option value="video">MP4 Object Detection</option>
+        </select>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script>
-        let base64Image;
-        $("#image-selectorCD").change(function() {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let dataURL = reader.result;
-                $('#selected-imageCD').attr("src", dataURL);
-                base64Image = dataURL.replace("data:image/jpeg;base64,","");
-                console.log(base64Image);
-            }
-            reader.readAsDataURL($("#image-selectorCD")[0].files[0]);
-            $("#dog-prediction").text("");
-            $("#cat-prediction").text("");
+        $(document).ready(function(){
+            $("select").change(function(){
+                $(this).find("option:selected").each(function(){
+                    var optionValue = $(this).attr("value");
+                    if(optionValue){
+                        $(".box").not("." + optionValue).hide();
+                        $("." + optionValue).show();
+                    } else{
+                        $(".box").hide();
+                    }
+                });
+            }).change();
         });
+        </script>
 
-        $("#predict-buttonCD").click(function(){
-            let message = {
-                image: base64Image
-            }
-            console.log(message);
-            $.post("http://localhost:5000/catORdog", JSON.stringify(message), function(response){
-                $("#dog-prediction").text(response.prediction.dog.toFixed(6));
-                $("#cat-prediction").text(response.prediction.cat.toFixed(6));
-                console.log(response);
+    <div class="cd box">
+        <!--Cat/dog classification -->
+        <h1 style="font-size:150%">Cat/Dog Classification</h1>
+        <input id="image-selectorCD" type="file">
+        <button id="predict-buttonCD">Dog/Cat Classifier [VGG16 - Imagenet]</button>
+        <p style="font-weight:bold">Predictions</p>
+        <p>Dog: <span id="dog-prediction"></span></p>
+        <p>Cat: <span id="cat-prediction"></span></p>
+        <img id="selected-imageCD" src=""/>
+
+        <script>
+            let base64Image;
+            $("#image-selectorCD").change(function() {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let dataURL = reader.result;
+                    $('#selected-imageCD').attr("src", dataURL);
+                    base64Image = dataURL.replace("data:image/jpeg;base64,","");
+                    console.log(base64Image);
+                }
+                reader.readAsDataURL($("#image-selectorCD")[0].files[0]);
+                $("#dog-prediction").text("");
+                $("#cat-prediction").text("");
             });
-        });
-    </script>
 
-
-
-    <!--Object detection - image-->
-    <h1 style="font-size:150%">Object-detection Image</h1>
-    <input id="image-selectorOD" type="file">
-    <button id="predict-buttonOD">Object Detector [Yolo_v3(Darknet) - Coco]</button>
-    <img id="selected-imageOD" src=""/>
-    <p style="font-weight:bold">Predictions</p>
-    <img id="selected-imageOD1" src="">
-    <a id="OD1-dl" href="">Download</a>
-
-    <script>
-        let base64ImageOD;
-        $("#image-selectorOD").change(function() {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let dataURL = reader.result;
-                $('#selected-imageOD').attr("src", dataURL);
-                base64ImageOD = dataURL.replace("data:image/jpeg;base64,","");
-                console.log(base64ImageOD);
-            }
-            reader.readAsDataURL($("#image-selectorOD")[0].files[0]);
-
-        });
-
-        $("#predict-buttonOD").click(function(){
-            let message = {
-                image: base64ImageOD
-            }
-            console.log(message);
-            $.post("http://localhost:5000/Yolov3DetectI", JSON.stringify(message),function(response){
-            $('#selected-imageOD1').attr("src","{{ url_for('static', filename='images_temp/test.jpg') }}");
+            $("#predict-buttonCD").click(function(){
+                let message = {
+                    image: base64Image
+                }
+                console.log(message);
+                $.post("http://localhost:5000/catORdog", JSON.stringify(message), function(response){
+                    $("#dog-prediction").text(response.prediction.dog.toFixed(6));
+                    $("#cat-prediction").text(response.prediction.cat.toFixed(6));
+                    console.log(response);
+                });
             });
-            $('#OD1-dl').attr("href","http://localhost:5000/Yolov3DI");
-        });
-        
-    </script>
+        </script>
+    </div>
+
+
+    <div class="img box">
+        <!--Object detection - image-->
+        <h1 style="font-size:150%">Object-detection Image</h1>
+        <input id="image-selectorOD" type="file">
+        <button id="predict-buttonOD">Object Detector [Yolo_v3(Darknet) - Coco]</button>
+        <img id="selected-imageOD" src=""/>
+        <p style="font-weight:bold">Predictions</p>
+        <img id="selected-imageOD1" src="">
+        <!--<a id="OD1-dl" href="">Download</a>-->
+
+        <script>
+            let base64ImageOD;
+            $("#image-selectorOD").change(function() {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let dataURL = reader.result;
+                    $('#selected-imageOD').attr("src", dataURL);
+                    base64ImageOD = dataURL.replace("data:image/jpeg;base64,","");
+                    console.log(base64ImageOD);
+                }
+                reader.readAsDataURL($("#image-selectorOD")[0].files[0]);
+
+            });
+
+            $("#predict-buttonOD").click(function(){
+                let message = {
+                    image: base64ImageOD
+                }
+                console.log(message);
+                $.post("http://localhost:5000/Yolov3DetectI", JSON.stringify(message),function(response){
+                $('#selected-imageOD1').attr("src", "data:image/jpg;base64," + response.prediction.rendered_image);
+                var link = document.createElement('a');
+                // convert bite array into blob
+                link.href = "http://localhost:5000/Yolov3DI";
+                // set a human file name
+                link.download = "processed-image";
+                // triggers automatic download
+                link.click();
+                });
+                //$('#OD1-dl').attr("href","http://localhost:5000/Yolov3DI");
+
+            });
+            
+        </script>
+    </div>
     
-    <!--Object detection - video -->
-    <h1 style="font-size:150%">Object-detection Video</h1>
-    <input id="video-selector" type="file" accept=".mp4">
-    <button id="predict-buttonODV">Object Detector [Yolo_v3(Darknet) - Coco]</button>
-    <video id="selected-video" controls width="500" style="center" type="video/mp4" autoplay>
-    </video>
-    <video id="selected-videoOD" controls width="500" style="center" type="video/mp4" autoplay>
-    </video>
-    <img id="selected-videoOD" src=""/>
-    <p style="font-weight:bold">Predictions</p>
-    <img id="selected-videoOD1" src="">
-    <a id="ODV1-dl" href="">Download</a>
+    <div class="video box">
+        <!--Object detection - video -->
+        <h1 style="font-size:150%">Object-detection Video</h1>
+        <input id="video-selector" type="file" accept=".mp4">
+        <button id="predict-buttonODV">Object Detector [Yolo_v3(Darknet) - Coco]</button>
+        <video id="selected-video" controls width="500" style="center" type="video/mp4" autoplay></video>
 
-    <script>
-        let base64VideoOD
-        $("#video-selector").change(function() {
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                dataURL = e.target.result;
-                $('#selected-video').attr("src", dataURL);
-                base64VideoOD = dataURL.replace("data:video/mp4;base64,","");
-                console.log(base64ImageOD);
-            }
-            reader.readAsDataURL($("#video-selector")[0].files[0]);
+        <script>
+            let base64VideoOD
+            $("#video-selector").change(function() {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    dataURL = e.target.result;
+                    $('#selected-video').attr("src", dataURL);
+                    base64VideoOD = dataURL.replace("data:video/mp4;base64,","");
+                    console.log(base64ImageOD);
+                }
+                reader.readAsDataURL($("#video-selector")[0].files[0]);
 
-        });
-
-        $("#predict-buttonODV").click(function(){
-            let message = {
-                video: base64VideoOD
-            }
-            console.log(message);
-            $.post("http://localhost:5000/Yolov3DetectV", JSON.stringify(message),function(response){
-            $('#selected-videoOD').attr("src","{{ url_for('static', filename='images_temp/test.jpg') }}");
             });
-            $('#ODV1-dl').attr("href","http://localhost:5000/Yolov3DV");
-        });
-        
-    </script>
 
+            $("#predict-buttonODV").click(function(){
+                let message = {
+                    video: base64VideoOD
+                }
+                console.log(message);
+                $.post("http://localhost:5000/Yolov3DetectV", JSON.stringify(message),function(response){
+                //$('#processed-frame').attr("src", "data:image/jpg;base64," + response.prediction.rendered_image);
+                //$('#processed-frame').attr("src","{{ url_for('static', filename='images_temp/frame.jpg') }}");
+                //$('#ODV1-dl').attr("href","http://localhost:5000/Yolov3DV");
+
+                var link = document.createElement('a');
+                // convert bite array into blob
+                link.href = "http://localhost:5000/Yolov3DV";
+                // set a human file name
+                link.download = "processed-video";
+                // triggers automatic download
+                link.click();
+                //if(response.status=="ok"){
+                //    $('#ODV1-dl').attr("href","http://localhost:5000/Yolov3DV");
+                //    $('#ODV1-dl').attr("innerhtml","Download");
+                //}
+                });
+                
+            });
+            
+        </script>
+    </div>
 </body>
 </html>
