@@ -26,7 +26,7 @@ print(" * Loading cat/dog classification model...")
 sess = vg.initialize_sess()
 set_session(sess)
 global model, graph
-wpath='VGG16\VGG16_cats_and_dogs.h5'
+wpath= os.path.join("VGG16","VGG16_cats_and_dogs.h5")
 model_vgg, graph_vgg = vg.get_model(wpath)
 print(" * Cat/dog model loaded!")
 
@@ -52,40 +52,29 @@ def predictCorD():
     return jsonify(response)
 
 
+
 #=========================================
 # Yolov3 for object detection of 80 common objects
-# Set paths for dataset classes, model weights and config
 
 
-labelspath="Yolo_v3/coco.names"
-cfgpath="Yolo_v3/yolov3.cfg"
-wpath="Yolo_v3/yolov3.weights"
 
 
 #=========================================
 # Yolov3 - Images
 
-img_dir = r'.\static\images_temp'
+img_dir = os.path.join(".","static","images_temp")
 test_img_name = 'test.jpg'
 test_img_path = os.path.join(img_dir, test_img_name)
-model, classes, colors, output_layers=yl3.get_model(cfgpath,wpath,labelspath)
+model, classes, colors, output_layers=yl3.get_model()
 print(" * Yolo_v3 Object Detector model loaded!")
-# =============================================================================
-# def randomString(stringLength=10):
-#     """Generate a random string of fixed length """
-#     letters = string.ascii_lowercase
-#     return ''.join(random.choice(letters) for i in range(stringLength))
-# =============================================================================
 
 @app.route("/Yolov3DetectI", methods=["POST","GET"])
 def predictYoloI():
     message = request.get_json(force=True)
-    #global filename 
-    #filename = "{}.jpg".format(randomString())
     encoded = message['image']
     decoded = base64.b64decode(encoded + '===')
     image = Image.open(io.BytesIO(decoded))
-    res = yl3.image_detect(model, classes, colors, output_layers, image)
+    res = yl3.image_detect_flask(model, classes, colors, output_layers, image)
     _,encoded_rendered_image = cv2.imencode('.png', res)
     ENCODING = 'utf-8'
     encoded_rendered_image_text = base64.b64encode(encoded_rendered_image)
@@ -106,7 +95,7 @@ def imgDL():
 # Yolov3 - Videos
 
 
-vid_dir = r'.\static\videos_temp'
+vid_dir = os.path.join(".","static","videos_temp")
 test_vid_name = 'test.mp4'
 processed_vid_name = 'processed.mp4'
 test_vid_path = os.path.join(vid_dir, test_vid_name)
@@ -115,16 +104,16 @@ processed_vid_path = os.path.join(vid_dir, processed_vid_name)
 test_frame_name = 'frame.jpg'
 test_frame_path = os.path.join(img_dir, test_frame_name)
 
-model, classes, colors, output_layers=yl3.get_model(cfgpath,wpath,labelspath)
+model, classes, colors, output_layers=yl3.get_model()
 print(" * Yolo_v3 Object Detector model loaded!")
 
 
-def stream_template(template_name, **context):
-    app.update_template_context(context)
-    t = app.jinja_env.get_template(template_name)
-    rv = t.stream(context)
-    rv.enable_buffering(5)
-    return rv
+# def stream_template(template_name, **context):
+#     app.update_template_context(context)
+#     t = app.jinja_env.get_template(template_name)
+#     rv = t.stream(context)
+#     rv.enable_buffering(5)
+#     return rv
 
 
 @app.route("/Yolov3DetectV", methods=["POST","GET"])
@@ -143,7 +132,7 @@ def predictYoloV():
         height, width, channels = frame.shape
         blob, outputs = yl3.detect_objects(frame, model, output_layers)
         boxes, confs, class_ids = yl3.get_box_dimensions(outputs, height, width)
-        res = yl3.draw_labels(boxes, confs, colors, class_ids, classes, frame)
+        res = yl3.draw_labels_flask(boxes, confs, colors, class_ids, classes, frame)
         out.write(res)
         _, frame = cap.read()
 
@@ -164,8 +153,8 @@ def predictYoloV():
     #        yield jsonify(response)
             
     response = {"status": "ok"}
-    #cap.release()
-    #out.release()
+    cap.release()
+    out.release()
     #return Response(stream_template('predict.html', frames = stream_with_context(generateFrames)))
     return jsonify(response)
 

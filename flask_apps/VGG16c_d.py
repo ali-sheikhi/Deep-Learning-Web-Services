@@ -6,8 +6,12 @@ Created on Wed Apr  8 22:40:44 2020
 """
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array
+from PIL import Image
 import tensorflow as tf
 import numpy as np
+import argparse
+import os
+
 
 def initialize_sess():
     global sess
@@ -31,3 +35,18 @@ def preprocess_image(image, target_size):
     image = np.expand_dims(image, axis=0)
 
     return image
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--image_path', help="Path of image to detect objects", default="Test images - classification/cat.jpg")
+    args = parser.parse_args()
+    image_path = args.image_path
+    wpath= os.path.join("VGG16","VGG16_cats_and_dogs.h5")
+    model_vgg, graph_vgg = get_model(wpath)
+    with graph_vgg.as_default():
+        image = Image.open(image_path)
+        processed_image = preprocess_image(image, target_size=(224, 224))
+        prediction = model_vgg.predict(processed_image).tolist()
+    print("Prediction for Dog: ",prediction[0][0])
+    print("Prediction for Cat: ",prediction[0][1])

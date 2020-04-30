@@ -1,21 +1,17 @@
 import cv2
 import numpy as np 
-#import argparse
-#import time
+import argparse
+import time
+import os
 
-# =============================================================================
-# parser = argparse.ArgumentParser()
-# parser.add_argument('--webcam', help="True/False", default=False)
-# parser.add_argument('--play_video', help="Tue/False", default=False)
-# parser.add_argument('--image', help="Tue/False", default=False)
-# parser.add_argument('--video_path', help="Path of video file", default="videos/car_on_road.mp4")
-# parser.add_argument('--image_path', help="Path of image to detect objects", default="Images/bicycle.jpg")
-# parser.add_argument('--verbose', help="To print statements", default=True)
-# args = parser.parse_args()
-# =============================================================================
+
+# Set paths for dataset classes, model weights and config
+labelspath= os.path.join("Yolo_v3","coco.names")
+cfgpath= os.path.join("Yolo_v3","yolov3.cfg")
+wpath= os.path.join("Yolo_v3","yolov3.weights")
 
 #Load yolo
-def get_model(cfgpath, wpath, labelspath):
+def get_model():
 	net = cv2.dnn.readNet(cfgpath, wpath)
 	classes = []
 	with open(labelspath, "r") as f:
@@ -26,7 +22,17 @@ def get_model(cfgpath, wpath, labelspath):
 	colors = np.random.uniform(0, 255, size=(len(classes), 3))
 	return net, classes, colors, output_layers
 
-def load_image(img):
+def load_image(img_path):
+	# image loading
+    img = cv2.imread(img_path)
+    npimg=np.array(img)
+    image=npimg.copy()
+    image=cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+    img= cv2.resize(image, None, fx=0.4, fy=0.4)
+    height, width, channels = img.shape
+    return img, height, width, channels
+
+def load_image_flask(img):
 	# image loading
 	#img = cv2.imread(img_path)
     npimg=np.array(img)
@@ -76,8 +82,20 @@ def get_box_dimensions(outputs, height, width):
 				confs.append(float(conf))
 				class_ids.append(class_id)
 	return boxes, confs, class_ids
-			
+
 def draw_labels(boxes, confs, colors, class_ids, classes, img): 
+	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
+	font = cv2.FONT_HERSHEY_PLAIN
+	for i in range(len(boxes)):
+		if i in indexes:
+			x, y, w, h = boxes[i]
+			label = str(classes[class_ids[i]]) + (":%.2f" % confs[i])
+			color = colors[i]
+			cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
+			cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
+	cv2.imshow("Image", img)
+
+def draw_labels_flask(boxes, confs, colors, class_ids, classes, img): 
     indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
     font = cv2.FONT_HERSHEY_PLAIN
     for i in range(len(boxes)):
@@ -90,12 +108,23 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img):
     #cv2.imshow("Image", img)
     return img
 
-def image_detect(model, classes, colors, output_layers, img): 
+def image_detect(img_path): 
+	model, classes, colors, output_layers = get_model()
+	image, height, width, channels = load_image(img_path)
+	blob, outputs = detect_objects(image, model, output_layers)
+	boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
+	draw_labels(boxes, confs, colors, class_ids, classes, image)
+	while True:
+		key = cv2.waitKey(1)
+		if key == 27:
+			break
+
+def image_detect_flask(model, classes, colors, output_layers, img): 
 	#model, classes, colors, output_layers = get_model()
-    image, height, width, channels = load_image(img)
+    image, height, width, channels = load_image_flask(img)
     blob, outputs = detect_objects(image, model, output_layers)
     boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
-    res = draw_labels(boxes, confs, colors, class_ids, classes, image)
+    res = draw_labels_flask(boxes, confs, colors, class_ids, classes, image)
 # =============================================================================
 #     while True:
 # 	    key = cv2.waitKey(1)
@@ -119,49 +148,54 @@ def webcam_detect():
 	cap.release()
 
 
-# =============================================================================
-# def start_video(video):
-#     model, classes, colors, output_layers = get_model()
-#     cap = cv2.VideoCapture(video)
-#     # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
-# 	# Define the fps to be equal to 10. Also frame size is passed.
-#     #frame_width = int(cap.get(3))
-#     #frame_height = int(cap.get(4))
-#     #out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
-#     while True:
-# 	    _, frame = cap.read()
-# 	    height, width, channels = frame.shape
-# 	    blob, outputs = detect_objects(frame, model, output_layers)
-# 	    boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
-# 	    draw_labels(boxes, confs, colors, class_ids, classes, frame)
-# 	    key = cv2.waitKey(1)
-# 	    if key == 27:
-# 		    break
-#     cap.release()
-# =============================================================================
+def start_video(video):
+    model, classes, colors, output_layers = get_model()
+    cap = cv2.VideoCapture(video)
+    # Define the codec and create VideoWriter object.The output is stored in 'outpy.avi' file.
+	# Define the fps to be equal to 10. Also frame size is passed.
+    # frame_width = int(cap.get(3))
+    # frame_height = int(cap.get(4))
+    # out = cv2.VideoWriter('outpy.avi',cv2.VideoWriter_fourcc('M','J','P','G'), 10, (frame_width,frame_height))
+    while True:
+	    _, frame = cap.read()
+	    height, width, channels = frame.shape
+	    blob, outputs = detect_objects(frame, model, output_layers)
+	    boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
+	    draw_labels(boxes, confs, colors, class_ids, classes, frame)
+	    key = cv2.waitKey(1)
+	    if key == 27:
+		    break
+    cap.release()
 
 
 
-# =============================================================================
-# if __name__ == '__main__':
-# 	webcam = args.webcam
-# 	video_play = args.play_video
-# 	image = args.image
-# 	if webcam:
-# 		if args.verbose:
-# 			print('---- Starting Web Cam object detection ----')
-# 		webcam_detect()
-# 	if video_play:
-# 		video_path = args.video_path
-# 		if args.verbose:
-# 			print('Opening '+video_path+" .... ")
-# 		start_video(video_path)
-# 	if image:
-# 		image_path = args.image_path
-# 		if args.verbose:
-# 			print("Opening "+image_path+" .... ")
-# 		image_detect(image_path)
-# 	
-# 
-# 	cv2.destroyAllWindows()
-# =============================================================================
+
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument('--webcam', help="True/False", default=False)
+	parser.add_argument('--play_video', help="Tue/False", default=False)
+	parser.add_argument('--image', help="Tue/False", default=False)
+	parser.add_argument('--video_path', help="Path of video file", default="Test media - object detection/videos/car_on_road.mp4")
+	parser.add_argument('--image_path', help="Path of image to detect objects", default="Test media - object detection/Images/bicycle.jpg")
+	parser.add_argument('--verbose', help="To print statements", default=True)
+	args = parser.parse_args()
+	webcam = args.webcam
+	video_play = args.play_video
+	image = args.image
+	if webcam:
+		if args.verbose:
+			print('---- Starting Web Cam object detection ----')
+		webcam_detect()
+	if video_play:
+		video_path = args.video_path
+		if args.verbose:
+			print('Opening '+video_path+" .... ")
+		start_video(video_path)
+	if image:
+		image_path = args.image_path
+		if args.verbose:
+			print("Opening "+image_path+" .... ")
+		image_detect(image_path)
+	
+
+	cv2.destroyAllWindows()

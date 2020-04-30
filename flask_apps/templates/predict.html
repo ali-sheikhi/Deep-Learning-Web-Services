@@ -39,8 +39,9 @@
         });
         </script>
 
-    <div class="cd box">
-        <!--Cat/dog classification -->
+
+<!--Cat/dog classification -->    
+<div class="cd box">
         <h1 style="font-size:150%">Cat/Dog Classification</h1>
         <input id="image-selectorCD" type="file">
         <button id="predict-buttonCD">Dog/Cat Classifier [VGG16 - Imagenet]</button>
@@ -79,11 +80,11 @@
     </div>
 
 
+    <!--Object detection - image-->
     <div class="img box">
-        <!--Object detection - image-->
         <h1 style="font-size:150%">Object-detection Image</h1>
         <input id="image-selectorOD" type="file">
-        <button id="predict-buttonOD">Object Detector [Yolo_v3(Darknet) - Coco]</button>
+        <button id="predict-buttonOD">Object Detector [Yolo_v3 - Coco]</button>
         <img id="selected-imageOD" src=""/>
         <p style="font-weight:bold">Predictions</p>
         <img id="selected-imageOD1" src="">
@@ -125,11 +126,12 @@
         </script>
     </div>
     
+
+    <!--Object detection - video -->
     <div class="video box">
-        <!--Object detection - video -->
         <h1 style="font-size:150%">Object-detection Video</h1>
         <input id="video-selector" type="file" accept=".mp4">
-        <button id="predict-buttonODV">Object Detector [Yolo_v3(Darknet) - Coco]</button>
+        <button id="predict-buttonODV">Object Detector [Yolo_v3 - Coco]</button>
         <video id="selected-video" controls width="500" style="center" type="video/mp4" autoplay></video>
 
         <script>
@@ -167,8 +169,7 @@
                 //    $('#ODV1-dl').attr("href","http://localhost:5000/Yolov3DV");
                 //    $('#ODV1-dl').attr("innerhtml","Download");
                 //}
-                });
-                
+                });         
             });
             
         </script>

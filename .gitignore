@@ -1,3 +1,5 @@
-flask_apps/Yolo_v3/*
+flask_apps/Yolo_v3/yolov3.cfg
+flask_apps/Yolo_v3/yolov3.weights
 flask_apps/VGG16/*
 flask_apps/__pycache__/*
+flask_apps/templates/predict-with-visuals.html
