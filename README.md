@@ -8,10 +8,15 @@ Get your environment running (preferrably a new one to avoid package version con
 
 ### Prerequisites
 
-All required packages are listed in [requirements.txt](requirements.txt). Run the following command to install them.
+To install all required packages in a new `conda` environment,
+```
+conda create --name <env> --file requirements-conda.txt
+```
+
+Otherwise, if your not using Anaconda(or Miniconda) environments,
 
 ```
-pip install -r requirement.txt
+pip install -r requirement-pip.txt
 ```
 
 ### Pre-trained Models

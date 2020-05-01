@@ -23,11 +23,10 @@ def index():
 # dog and cat classification
 
 print(" * Loading cat/dog classification model...")
-sess = vg.initialize_sess()
-set_session(sess)
+
 global model, graph
 wpath= os.path.join("VGG16","VGG16_cats_and_dogs.h5")
-model_vgg, graph_vgg = vg.get_model(wpath)
+model_vgg = vg.get_model(wpath)
 print(" * Cat/dog model loaded!")
 
 @app.route("/catORdog", methods=["POST","GET"])
@@ -35,13 +34,10 @@ def predictCorD():
     message = request.get_json(force=True)
     encoded = message['image']
     decoded = base64.b64decode(encoded + '===')
-    #decoded = base64.b64decode(encoded)
-
-    with graph_vgg.as_default():
-        set_session(sess)
-        image = Image.open(io.BytesIO(decoded))
-        processed_image = vg.preprocess_image(image, target_size=(224, 224))
-        prediction = model_vgg.predict(processed_image).tolist()
+    
+    image = Image.open(io.BytesIO(decoded))
+    processed_image = vg.preprocess_image(image, target_size=(224, 224))
+    prediction = model_vgg.predict(processed_image).tolist()
 
     response = {
         'prediction': {

@@ -13,18 +13,13 @@ import argparse
 import os
 
 
-def initialize_sess():
-    global sess
-    config = tf.ConfigProto(
-        device_count = {'GPU': 0}
-        )
-    return tf.Session(config=config)
 
 def get_model(path):
     model = load_model(path)
     model._make_predict_function()
-    graph = tf.get_default_graph()
-    return model, graph
+    #graph = tf.get_default_graph()
+    #return model, graph
+    return model
 
 
 def preprocess_image(image, target_size):
