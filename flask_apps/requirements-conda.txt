@@ -81,7 +81,6 @@ tk=8.6.8=hfa6e2cd_0
 urllib3=1.25.8=py37_0
 vc=14.1=h0510ff6_4
 vs2015_runtime=14.16.27012=hf0eaf9b_1
-werkzeug=0.14.1=py37_0
 wheel=0.34.2=py37_0
 win_inet_pton=1.1.0=py37_0
 wincertstore=0.2=py37_0
