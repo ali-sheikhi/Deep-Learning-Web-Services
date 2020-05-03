@@ -2,6 +2,37 @@
 
 This is a simple project that allows one to host deep learning services like image classification, image object detection and video object detection on a local machine using Flask. Both types of tasks use pretrained models; VGG16 for classificatin and YOLOv3 for detection.
 
+## Directory Structure
+```
+flask_apps
+├── static
+│   ├── images_temp
+│   │   └── test.jpg
+│   ├── videos_temp
+│   │   ├── processed.mp4
+│   │   └── test.mp4
+│   ├── bkg.jpg
+│   └── style.css
+├── templates
+│   └── predict.html
+├── Test images - classification
+├── Test media - object detection
+│   ├── images
+│   ├── screenshots
+│   └── videos
+├── VGG16
+│   └── VGG16_cats_and_dogs.h5
+├── Yolo_v3
+│   ├── coco.names
+│   ├── yolov3.cfg
+│   └── yolov3.weights
+├── predict_app.py
+├── VGG16c_d.py
+├── yolo.py
+├── requirements-conda.txt
+└── requirements-pip.txt
+```
+
 ## Getting Started
 
 Get your environment running (preferrably a new one to avoid package version conflicts) and navigate to the `flask_apps` folder(hencforth referred to as `project directory`).
@@ -25,7 +56,7 @@ You will need to download the pre-trained models for the classification and obje
 
 #### Classification Pre-trained Model Source
 
-Download the [VGG_16_cat_and_dogs](https://drive.google.com/uc?id=19yICdtSbU_YkQBRxJ2if9KJwUL1oY5xs&export=download) pre-trained model into a new folder `VGG16` within the project directory, i.e. `./VGG16/`. 
+Download the [VGG_16_cat_and_dogs](https://drive.google.com/uc?id=19yICdtSbU_YkQBRxJ2if9KJwUL1oY5xs&export=download) pre-trained model into a new folder `VGG16` within the project directory, i.e. `./VGG16/`.
 
 #### Object-detection Pre-trained Model Source
 
