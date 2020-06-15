@@ -67,7 +67,7 @@ Download the weights and and configuration files for the model `YOLOv3-320` from
 
 ## Testing It Out
 
-You can either make predictions directly from the command line or through the browser.
+You can either make predictions directly from the command line without using flask or through the browser after running the flask app.
 
 ### Command-line Predictions
 
@@ -104,7 +104,7 @@ python yolo.py --webcam 1
 
 ### Browser Predictions
 
-In order to get the backend flask app running, run these
+In order to get the backend flask app running, execute these
 
 ```
 set FLASK_APP=predict_app.py
