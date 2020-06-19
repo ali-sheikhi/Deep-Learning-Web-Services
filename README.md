@@ -1,9 +1,12 @@
 # Deep Learning Web Services
 
-This is a simple project that allows one to host deep learning services like image classification, image object detection and video object detection on a local machine using Flask. Both types of tasks use pretrained models; VGG16 for classificatin and YOLOv3 for detection.
+This is a simple project that allows one to host deep learning services like image classification, image object detection and video object detection on a local machine using Flask. Both types of tasks use pretrained models; VGG16 for classification and YOLOv3 for detection.
 
 ## Directory Structure
 ```
+README.md
+requirements-conda.txt
+requirements-pip.txt
 flask_apps
 ├── static
 │   ├── images_temp
@@ -28,14 +31,13 @@ flask_apps
 │   └── yolov3.weights
 ├── predict_app.py
 ├── VGG16c_d.py
-├── yolo.py
-├── requirements-conda.txt
-└── requirements-pip.txt
+└── yolo.py
+
 ```
 
 ## Getting Started
 
-Get your environment running (preferrably a new one to avoid package version conflicts) and navigate to the `flask_apps` folder(hencforth referred to as `project directory`).
+Get your environment running (preferrably a new one to avoid package version conflicts), clone this project and install the necessary packages as shown below.
 
 ### Prerequisites
 
@@ -56,18 +58,18 @@ You will need to download the pre-trained models for the classification and obje
 
 #### Classification Pre-trained Model Source
 
-Download the [VGG_16_cat_and_dogs](https://drive.google.com/uc?id=19yICdtSbU_YkQBRxJ2if9KJwUL1oY5xs&export=download) pre-trained model into a new folder `VGG16` within the project directory, i.e. `./VGG16/`.
+Download the [VGG_16_cat_and_dogs](https://drive.google.com/uc?id=19yICdtSbU_YkQBRxJ2if9KJwUL1oY5xs&export=download) pre-trained model into a new folder `VGG16` within the flask_apps directory, i.e. `./flask_apps/VGG16/`.
 
 #### Object-detection Pre-trained Model Source
 
-Download the weights and and configuration files for the model `YOLOv3-320` from [YOLOv3](https://pjreddie.com/darknet/yolo/) into the existing folder `Yolo_v3` within the project directory, i.e. `./Yolo_v3/`. This model has been trained on the `COCO` dataset the labels (pertaining to 80 common objects) for which are already in the file `coco.names` in the folder `Yolo_v3`.
+Download the weights and and configuration files for the model `YOLOv3-320` from [YOLOv3](https://pjreddie.com/darknet/yolo/) into the existing folder `Yolo_v3`, i.e. `./flask_apps/Yolo_v3/`. This model has been trained on the `COCO` dataset the labels (pertaining to 80 common objects) for which are already in the file `coco.names` in the folder `Yolo_v3`.
 
 **Note**: The model is trained on images of different sizes but this being a web service for which speed is a priority `YOLOv3-320` is recommended.
 
 
 ## Testing It Out
 
-You can either make predictions directly from the command line without using flask or through the browser after running the flask app.
+You can either make predictions directly from the command line without using flask or through the browser after running the flask app. (navigate to the flask_apps folder or modify the commands depending on your current directory)
 
 ### Command-line Predictions
 
