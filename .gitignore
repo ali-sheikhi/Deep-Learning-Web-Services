@@ -6,3 +6,4 @@ flask_apps/templates/predict-with-visuals.html
 requirements-pip-docker.txt
 Dockerfile
 .dockerignore
+DockerInstructions.txt

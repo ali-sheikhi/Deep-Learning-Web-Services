@@ -25,7 +25,7 @@ def index():
 print(" * Loading cat/dog classification model...")
 
 global model, graph
-wpath= os.path.join("VGG16","VGG16_cats_and_dogs.h5")
+wpath= os.path.join(os.path.dirname(__file__),"VGG16","VGG16_cats_and_dogs.h5")
 model_vgg = vg.get_model(wpath)
 print(" * Cat/dog model loaded!")
 
@@ -58,7 +58,7 @@ def predictCorD():
 #=========================================
 # Yolov3 - Images
 
-img_dir = os.path.join(".","static","images_temp")
+img_dir = os.path.join(os.path.dirname(__file__),"static","images_temp")
 test_img_name = 'test.jpg'
 test_img_path = os.path.join(img_dir, test_img_name)
 model, classes, colors, output_layers=yl3.get_model()
@@ -91,7 +91,7 @@ def imgDL():
 # Yolov3 - Videos
 
 
-vid_dir = os.path.join(".","static","videos_temp")
+vid_dir = os.path.join(os.path.dirname(__file__),"static","videos_temp")
 test_vid_name = 'test.mp4'
 processed_vid_name = 'processed.mp4'
 test_vid_path = os.path.join(vid_dir, test_vid_name)

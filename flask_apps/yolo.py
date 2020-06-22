@@ -6,9 +6,9 @@ import os
 
 
 # Set paths for dataset classes, model weights and config
-labelspath= os.path.join("Yolo_v3","coco.names")
-cfgpath= os.path.join("Yolo_v3","yolov3.cfg")
-wpath= os.path.join("Yolo_v3","yolov3.weights")
+labelspath= os.path.join(os.path.dirname(__file__),"Yolo_v3","coco.names")
+cfgpath= os.path.join(os.path.dirname(__file__),"Yolo_v3","yolov3.cfg")
+wpath= os.path.join(os.path.dirname(__file__),"Yolo_v3","yolov3.weights")
 
 #Load yolo
 def get_model():
