@@ -106,7 +106,7 @@ python yolo.py --webcam 1
 
 ### Browser Predictions
 
-In order to get the backend flask app running, execute these
+In order to get the backend flask app running, execute these (replace `set` with `export` in linux):
 
 ```
 set FLASK_APP=predict_app.py
@@ -116,7 +116,7 @@ The server has been set to localhost in the script.
 
 Then open your browser (testing was done on Chrome browser) and go to `http://localhost:5000`. Running the different tasks is pretty intuitive. For image and video object detection, once output is ready a save file dialog box will pop up (though for the former the processed image will also be displayed in the browser itself). So the bigger the mp4 the longer the wait.
 
-Note: Webcam functionality is not available through browser.
+Note: Webcam functionality is not available through browser. Also, the code was run on Windows 10.
 
 
 ## Acknowledgments
