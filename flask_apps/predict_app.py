@@ -3,7 +3,6 @@ import io
 import os
 from PIL import Image
 from flask import request, send_file, jsonify, Flask, render_template, send_from_directory, Response, stream_with_context
-from tensorflow.python.keras.backend import set_session
 from gevent.pywsgi import WSGIServer
 import cv2
 
@@ -52,7 +51,7 @@ def predictCorD():
 #=========================================
 # Yolov3 for object detection of 80 common objects
 
-
+model, classes, colors, output_layers=yl3.get_model()
 
 
 #=========================================
@@ -61,7 +60,7 @@ def predictCorD():
 img_dir = os.path.join(os.path.dirname(__file__),"static","images_temp")
 test_img_name = 'test.jpg'
 test_img_path = os.path.join(img_dir, test_img_name)
-model, classes, colors, output_layers=yl3.get_model()
+
 print(" * Yolo_v3 Object Detector model loaded!")
 
 @app.route("/Yolov3DetectI", methods=["POST","GET"])
@@ -100,16 +99,8 @@ processed_vid_path = os.path.join(vid_dir, processed_vid_name)
 test_frame_name = 'frame.jpg'
 test_frame_path = os.path.join(img_dir, test_frame_name)
 
-model, classes, colors, output_layers=yl3.get_model()
 print(" * Yolo_v3 Object Detector model loaded!")
 
-
-# def stream_template(template_name, **context):
-#     app.update_template_context(context)
-#     t = app.jinja_env.get_template(template_name)
-#     rv = t.stream(context)
-#     rv.enable_buffering(5)
-#     return rv
 
 
 @app.route("/Yolov3DetectV", methods=["POST","GET"])
@@ -132,21 +123,6 @@ def predictYoloV():
         out.write(res)
         _, frame = cap.read()
 
-    #def generateFrames():
-    #    _, frame = cap.read()
-    #    while _:
-    #        height, width, channels = frame.shape
-    #        blob, outputs = yl3.detect_objects(frame, model, output_layers)
-    #        boxes, confs, class_ids = yl3.get_box_dimensions(outputs, height, width)
-    #        res = yl3.draw_labels(boxes, confs, colors, class_ids, classes, frame)
-    #        _,encoded_rendered_image = cv2.imencode('.png', res)
-    #        ENCODING = 'utf-8'
-    #        encoded_rendered_image_text = base64.b64encode(encoded_rendered_image)
-    #        encoded_rendered_base64_string = encoded_rendered_image_text.decode(ENCODING)
-    #        response = {"prediction": {"rendered_image":encoded_rendered_base64_string}}
-    #        out.write(res)
-    #        _, frame = cap.read()
-    #        yield jsonify(response)
             
     response = {"status": "ok"}
     cap.release()
@@ -158,8 +134,6 @@ def predictYoloV():
 @app.route("/Yolov3DV", methods=["POST","GET"])
 def vidDL():
     return send_from_directory(vid_dir, processed_vid_name, as_attachment=True)
-
-
 
 
 
@@ -185,6 +159,6 @@ def vidDL():
 if __name__ == '__main__':
    #app.run(host='0.0.0.0')
    
-    # Serve the app with gevent
+   # Serve the app with gevent
    http_server = WSGIServer(('', 5000), app)
    http_server.serve_forever()

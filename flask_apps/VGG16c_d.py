@@ -7,7 +7,6 @@ Created on Wed Apr  8 22:40:44 2020
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array
 from PIL import Image
-import tensorflow as tf
 import numpy as np
 import argparse
 import os
@@ -17,8 +16,6 @@ import os
 def get_model(path):
     model = load_model(path)
     model._make_predict_function()
-    #graph = tf.get_default_graph()
-    #return model, graph
     return model
 
 
