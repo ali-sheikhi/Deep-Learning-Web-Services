@@ -78,7 +78,7 @@ tensorflow-base=2.1.0=eigen_py37h49b2757_0
 tensorflow-estimator=2.1.0=pyhd54b08b_0
 termcolor=1.1.0=py37_1
 tk=8.6.8=hfa6e2cd_0
-urllib3=1.25.8=py37_0
+urllib3>=1.26.5
 vc=14.1=h0510ff6_4
 vs2015_runtime=14.16.27012=hf0eaf9b_1
 wheel=0.34.2=py37_0
