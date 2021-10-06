@@ -52,7 +52,7 @@ olefile=0.46=py37_0
 opencv=3.4.2=py37h40b0b35_0
 openssl=1.1.1g=he774522_0
 opt_einsum=3.1.0=py_0
-pillow=8.1.2
+pillow>=8.3.2
 pip=20.0.2=py37_1
 protobuf=3.11.4=py37h33f27b4_0
 py-opencv=3.4.2=py37hc319ecb_0
